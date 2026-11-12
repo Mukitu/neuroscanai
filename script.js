@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:8001";
+const API_BASE_URL = "https://neuroscanai-k99x.onrender.com";
 let selectedFile = null;
 let currentLang = "en";
 let lastPredictions = null;
@@ -7,9 +7,9 @@ let lastPredictions = null;
 const i18n = {
   en: {
     subtitle: "EfficientNetB0 MRI Diagnostic Assistant",
-    connecting: "Connecting Server...",
-    connected: "Local API Ready",
-    waking: "Server Offline",
+    connecting: "Waking Cloud API...",
+    connected: "Cloud API Ready",
+    waking: "Waking Cloud Server...",
     badge: "Deep Learning · Transfer Learning (EfficientNetB0)",
     heroTitle: "Multi-Class Brain Tumor MRI Classification",
     heroDesc: "Upload a brain MRI scan to detect and classify Glioma, Meningioma, Pituitary Tumor, or No Tumor with confidence probability distribution.",
@@ -48,9 +48,9 @@ const i18n = {
   },
   bn: {
     subtitle: "EfficientNetB0 এমআরআই ডায়াগনস্টিক অ্যাসিস্ট্যান্ট",
-    connecting: "সার্ভার সংযুক্ত হচ্ছে...",
-    connected: "লোকাল API প্রস্তুত",
-    waking: "সার্ভার বন্ধ আছে",
+    connecting: "ক্লাউড সার্ভার চালু হচ্ছে...",
+    connected: "ক্লাউড API প্রস্তুত",
+    waking: "সার্ভার জাগানো হচ্ছে...",
     badge: "ডিপ লার্নিং · ট্রান্সফার লার্নিং (EfficientNetB0)",
     heroTitle: "মাল্টি-ক্লাস ব্রেইন টিউমার এমআরআই ক্লাসিফিকেশন",
     heroDesc: "গ্লিওমা (Glioma), মেনিনজিওমা (Meningioma), পিটুইটারি টিউমার (Pituitary) অথবা টিউমার নেই কি না তা শনাক্ত করতে ব্রেইন এমআরআই স্ক্যান আপলোড করুন।",
@@ -106,7 +106,7 @@ const resultOutput = document.getElementById("resultOutput");
 const langToggle = document.getElementById("langToggle");
 const langLabel = document.getElementById("langLabel");
 
-// Check Local FastAPI Server Status
+// Wake up & Check Render Cloud Server Status
 async function checkServer() {
   const badge = document.getElementById("apiStatusBadge");
   const text = document.getElementById("apiStatusText");
@@ -121,6 +121,8 @@ async function checkServer() {
   } catch (err) {
     text.setAttribute("data-i18n", "waking");
     text.textContent = i18n[currentLang].waking;
+    // Retry automatically after 5 seconds if Render free instance is waking up
+    setTimeout(checkServer, 5000);
   }
 }
 checkServer();
@@ -144,18 +146,28 @@ function applyTranslations() {
 
 // File Upload & Drag-Drop Handlers
 dropZone.addEventListener("click", () => fileInput.click());
+
 dropZone.addEventListener("dragover", (e) => {
   e.preventDefault();
   dropZone.classList.add("drop-active");
 });
-dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drop-active"));
+
+dropZone.addEventListener("dragleave", () => {
+  dropZone.classList.remove("drop-active");
+});
+
 dropZone.addEventListener("drop", (e) => {
   e.preventDefault();
   dropZone.classList.remove("drop-active");
-  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  if (e.dataTransfer.files.length) {
+    handleFile(e.dataTransfer.files[0]);
+  }
 });
+
 fileInput.addEventListener("change", (e) => {
-  if (e.target.files.length) handleFile(e.target.files[0]);
+  if (e.target.files.length) {
+    handleFile(e.target.files[0]);
+  }
 });
 
 function handleFile(file) {
@@ -196,7 +208,7 @@ resetBtn.addEventListener("click", (e) => {
   hideError();
 });
 
-// Run Inference via Local FastAPI Server
+// Run Inference via Render Cloud FastAPI Server
 analyzeBtn.addEventListener("click", async () => {
   if (!selectedFile) return;
 
@@ -229,8 +241,8 @@ analyzeBtn.addEventListener("click", async () => {
     emptyResultState.classList.remove("hidden");
     showError(
       currentLang === "en"
-        ? "Cannot connect to local backend (port 8001). Make sure 'uvicorn server:app --port 8001' is running."
-        : "লোকাল ব্যাকএন্ড সার্ভারের (port 8001) সাথে সংযোগ করা যাচ্ছে না। টার্মিনালে সার্ভার চালু আছে কি না নিশ্চিত করুন।"
+        ? "Cloud server is waking up from sleep mode. Please wait 30 seconds and click Analyze again."
+        : "ফ্রি ক্লাউড সার্ভারটি স্লিপ মোড থেকে চালু হচ্ছে। অনুগ্রহ করে ৩০ সেকেন্ড অপেক্ষা করে আবার ক্লিক করুন।"
     );
   } finally {
     analyzeBtn.disabled = false;

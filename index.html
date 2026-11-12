@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroScan AI — Brain Tumor MRI Classification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">NeuroScan <span>AI</span></h1>
+          <p class="brand-subtitle" data-i18n="subtitle">EfficientNetB0 MRI Diagnostic Assistant</p>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <div id="apiStatusBadge" class="status-badge connecting">
+          <span id="apiStatusDot" class="status-dot"></span>
+          <span id="apiStatusText" data-i18n="connecting">Connecting API...</span>
+        </div>
+
+        <button id="langToggle" class="lang-btn" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+          </svg>
+          <span id="langLabel">বাংলা</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container main-wrapper">
+    <section class="hero">
+      <span class="hero-badge" data-i18n="badge">Deep Learning · Transfer Learning (EfficientNetB0)</span>
+      <h2 class="hero-title" data-i18n="heroTitle">Multi-Class Brain Tumor MRI Classification</h2>
+      <p class="hero-desc" data-i18n="heroDesc">
+        Upload a brain MRI scan to detect and classify Glioma, Meningioma, Pituitary Tumor, or No Tumor with confidence probability distribution.
+      </p>
+    </section>
+
+    <div class="grid-layout">
+      <!-- Left Card: Upload -->
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title" data-i18n="uploadHeading">1. Upload Brain MRI Scan</h3>
+          <button id="resetBtn" class="clear-btn hidden" type="button" data-i18n="clearBtn">Clear Image</button>
+        </div>
+
+        <div id="dropZone" class="dropzone">
+          <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg" hidden />
+          
+          <div id="uploadPlaceholder" class="upload-placeholder">
+            <div class="upload-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            </div>
+            <p class="drop-title" data-i18n="dropText">Click to upload or drag & drop MRI image</p>
+            <p class="drop-hint" data-i18n="formatHint">Supports JPG, JPEG, PNG (224×224 RGB auto-scaled)</p>
+          </div>
+
+          <div id="previewContainer" class="preview-container hidden">
+            <div class="preview-frame">
+              <img id="previewImage" src="" alt="MRI Scan Preview" />
+            </div>
+            <p id="fileName" class="file-name"></p>
+          </div>
+        </div>
+
+        <button id="analyzeBtn" class="primary-btn" type="button" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <span id="btnText" data-i18n="analyzeBtn">Analyze MRI Scan</span>
+        </button>
+
+        <div id="errorBox" class="error-box hidden"></div>
+      </section>
+
+      <!-- Right Card: Results -->
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title" data-i18n="resultHeading">2. Diagnostic Classification Result</h3>
+        </div>
+
+        <div id="emptyResultState" class="state-box empty-state">
+          <div class="state-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <p class="state-title" data-i18n="noResultYet">No scan analyzed yet</p>
+          <p class="state-sub" data-i18n="noResultSub">Upload an MRI image and click "Analyze MRI Scan" to view predictions.</p>
+        </div>
+
+        <div id="loadingState" class="state-box loading-state hidden">
+          <div class="spinner"></div>
+          <p class="state-title" data-i18n="analyzingText">Running EfficientNetB0 Inference...</p>
+          <p class="state-sub" data-i18n="analyzingSub">Extracting deep convolutional features from MRI scan</p>
+        </div>
+
+        <div id="resultOutput" class="result-output hidden">
+          <div id="topPredictionCard" class="prediction-card">
+            <div class="prediction-top">
+              <span class="prediction-label" data-i18n="primaryDiagnosis">Primary Classification</span>
+              <span id="topConfidenceBadge" class="confidence-badge">0.0%</span>
+            </div>
+            <h4 id="topClassName" class="prediction-title">—</h4>
+            <p id="topClassDesc" class="prediction-desc"></p>
+          </div>
+
+          <div class="prob-section">
+            <h4 class="prob-heading" data-i18n="probBreakdown">Class Probability Breakdown</h4>
+            <div id="probabilityList" class="prob-list"></div>
+          </div>
+
+          <div class="disclaimer" data-i18n="disclaimer">
+            <strong>Academic & Research Disclaimer:</strong> This AI tool is developed for academic research and decision-support demonstration only. It is not a substitute for professional clinical diagnosis by a certified radiologist or neurologist.
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p><strong>Mukitu Islam Nishat</strong> · Dept. of CSE, North Bengal International University, Rajshahi</p>
+      <p>Backend: <a href="https://huggingface.co/spaces/mukitunishat/brain-tumor-api" target="_blank" rel="noopener">HF Space (EfficientNetB0)</a></p>
+    </div>
+  </footer>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

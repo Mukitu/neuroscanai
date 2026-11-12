@@ -550,30 +550,60 @@ body {
   line-height: 1.5;
 }
 
-/* Footer */
+/* Clean & Modern Footer */
 .footer {
   background: var(--bg-card);
   border-top: 1px solid var(--border-color);
-  padding: 18px 0;
+  padding: 20px 0;
+  margin-top: 24px;
 }
 
 .footer-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  gap: 8px;
+  gap: 12px;
 }
 
-.footer a {
-  color: var(--primary);
-  text-decoration: none;
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-main);
   font-weight: 600;
 }
 
-.footer a:hover {
-  text-decoration: underline;
+.footer-brand strong {
+  color: var(--primary);
+}
+
+.footer-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.footer-credit {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.footer-credit strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.heart-icon {
+  color: var(--rose-main);
+  font-size: 0.9rem;
+}
+
+.footer-copy {
+  font-size: 0.76rem;
+  color: var(--text-light);
 }
 
 @keyframes spin {
@@ -599,5 +629,6 @@ body {
   .footer-content {
     flex-direction: column;
     text-align: center;
+    gap: 6px;
   }
 }
